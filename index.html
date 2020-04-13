@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="en" ng-app="listaTelefonica">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Lista telefônica</title>
+    <link
+      rel="stylesheet"
+      href="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/css/bootstrap.min.css"
+      integrity="sha384-Vkoo8x4CGsO3+Hhxv8T/Q5PaXtkKtu6ug5TOeNV6gBiFeWPGFN9MuhOf23Q9Ifjh"
+      crossorigin="anonymous"
+    />
+    <link rel="stylesheet" href="lib/bootstrap/bootstrap.css" />
+
+    <script src="lib/angular/angular.js"></script>
+    <script>
+      angular.module("listaTelefonica", []); //o [] é o conjunto de modules que eu quero importar
+      //abaixo estou criando o meu controller
+
+      angular
+        .module("listaTelefonica")
+        .controller("listaTelefonicaController", function ($scope) {
+          $scope.app = "Meus Contatinhos";
+          $scope.contatos = [
+            { nome: "Amor", telefone: "55554444" },
+            { nome: "Mozão", telefone: "99998888" },
+            { nome: "Amor da minha vida", telefone: "77776666" },
+          ];
+          $scope.adicionarContato = function (contato) {
+              $scope.contatos.push(angular.copy(contato));
+              delete $scope.contato;
+          }
+        });
+    </script>
+  </head>
+  <!--     A view é um lugar onde eu coloco o meu controller..."view é a comida, controller a cozinha e source o garçon"
+   -->
+  <body ng-controller="listaTelefonicaController">
+    <div class="jumbotron">
+      <h3>{{app}}</h3> <!-- posso usar tbm o ng-bind="app" -->
+      <table class="table table-striped">
+        <tr>
+          <th>Nome</th>
+          <th>Telefone</th>
+        </tr>
+        <tr ng-repeat="contato in contatos"> <!-- similar ao forIn -->
+          <!--  <td>{{contato.nome}}</td>
+                <td>{{contato.telefone}}</td> -->
+          <td ng-repeat="(key, value) in contato">
+            {{value}}
+          </td>
+        </tr>
+      </table>
+      <hr> 
+      <input class="form-control" type="text" placeholder="Nome" ng-model="contato.nome" />
+      <input class="form-control" type="text" placeholder="Telefone" ng-model="contato.telefone" />
+      <button class="btn btn-primary btn-block" ng-click="adicionarContato(contato)">Adicionar Contato</button>
+    </div>
+  </body>
+</html>
+
+<!-- ng-bind pega algo do scope e exibe
+ng-model pega algo da view e define no scope - uso no select, input e textarea -->
+
+<!-- MANTRA: evitar ao máximo LER o scope dentro do controler! ex: adicionar os contatos ali no push passando um obj $scope.name .... -->
