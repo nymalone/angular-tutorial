@@ -16,15 +16,15 @@
     <script>
       angular.module("listaTelefonica", []); //o [] é o conjunto de modules que eu quero importar
       //abaixo estou criando o meu controller
-
+ 
       angular
         .module("listaTelefonica")
         .controller("listaTelefonicaController", function ($scope) {
           $scope.app = "Meus Contatinhos";
           $scope.contatos = [
-            { nome: "Amor", telefone: "55554444" },
-            { nome: "Mozão", telefone: "99998888" },
-            { nome: "Amor da minha vida", telefone: "77776666" },
+            { nome: "Amor", telefone: "55554444", operadora: {nome: "Oi", codigo: 14} },
+            { nome: "Mozão", telefone: "99998888", operadora: {nome: "Vivo", codigo: 15} },
+            { nome: "Amor da minha vida", telefone: "77776666", operadora: {nome: "Tim", codigo: 41} },
           ];
           $scope.operadoras = [
             { nome: "Oi", codigo: 14, categoria: "Celular" },
@@ -56,6 +56,7 @@
   <body ng-controller="listaTelefonicaController">
     <div class="jumbotron">
       <h3>{{app}}</h3>
+      <input class="form-control" type="text" ng-model="criterioDeBusca" placeholder="Busque por nome, telefone ou operadora" />
       <!-- posso usar tbm o ng-bind="app" -->
       <table ng-show="contatos.length > 0" class="table table-striped">
         <tr>
@@ -66,7 +67,7 @@
         </tr>
         <tr
           ng-class="{selecionado: contato.selecionado}"
-          ng-repeat="contato in contatos"
+          ng-repeat="contato in contatos | filter:criterioDeBusca | orderBy:'nome'" 
         >
           <!-- similar ao forIn -->
           <td><input type="checkbox" ng-model="contato.selecionado" /></td>
@@ -150,3 +151,7 @@ ng-model pega algo da view e define no scope - uso no select, input e textarea -
 <!-- $pristine e $dirty -> verifica se algum formulario ou campo ja foi utilizado alguma vez -->
 
 <!-- ng-pattern -> define uma RegExp para validar um campo  -->
+
+<!-- filtros: " | uppercase", " | lowercase", " | date:'dd/MM/yyyy HH:mm'" -->
+
+<!-- se eu colocar "oderBy:'-nome'" fica em ordem decrescente -->
