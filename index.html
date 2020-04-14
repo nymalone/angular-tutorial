@@ -36,6 +36,7 @@
           $scope.adicionarContato = function (contato) {
             $scope.contatos.push(angular.copy(contato));
             delete $scope.contato;
+            $scope.contatoForm.$setPristine();
           };
           $scope.apagarContatos = function (contatos) {
             $scope.contatos = contatos.filter(function (contato) {
@@ -84,13 +85,18 @@
             type="text"
             placeholder="Nome"
             ng-model="contato.nome"
+            name="nome"
             ng-required="true"
+            ng-minlength="3"
           />
           <input
             class="form-control"
             type="text"
             placeholder="Telefone"
             ng-model="contato.telefone"
+            name="telefone"
+            ng-required="true"
+            ng-pattern="/^\d{4-5}-\d{4}$/"
           />
           <select
             class="form-control"
@@ -100,10 +106,23 @@
             <option value="">Selecione uma operadora</option>
           </select>
       </form>
+      
+      <div class="alert alert-danger" ng-show="contatoForm.nome.$error.required && contatoForm.nome.$dirty">
+        <p>Por favor, preencha o nome!</p>
+      </div>
+      <div class="alert alert-danger" ng-show="contatoForm.nome.$error.minlength">
+        <p>O campo nome deve ter no mínimo 3 caracteres.</p>
+      </div>
+      <div class="alert alert-danger" ng-show="contatoForm.telefone.$error.required && contatoForm.telefone.$dirty">
+        <p>Por favor, preencha o telefone!</p>
+      </div>
+      <div class="alert alert-danger" ng-show="contatoForm.telefone.$error.pattern ">
+        <p>O campo telefone deve ter o formato 0000-0000.</p>
+      </div>
       <button
         class="btn btn-primary btn-block"
         ng-click="adicionarContato(contato)"
-        ng-disabled="!contato.nome || !contato.telefone"
+        ng-disabled="contatoForm.$invalid"
       >
         Adicionar Contato
       </button>
@@ -127,3 +146,7 @@ ng-model pega algo da view e define no scope - uso no select, input e textarea -
 <!-- ng-show, ng-hide, ng-if -> para melhor performance usar o if, os outros mesmo não aparecendo dependendo da condição eles seguem existindo  -->
 
 <!-- ng-required = diretiva de validação -->
+
+<!-- $pristine e $dirty -> verifica se algum formulario ou campo ja foi utilizado alguma vez -->
+
+<!-- ng-pattern -> define uma RegExp para validar um campo  -->

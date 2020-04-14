@@ -24,7 +24,12 @@
 .btn {
     margin-top: 15px;
 }
+
 .selecionado {
     font-weight: bold;
+}
+
+.alert {
+    height: 50px;
 }
 
