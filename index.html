@@ -26,10 +26,27 @@
             { nome: "Mozão", telefone: "99998888" },
             { nome: "Amor da minha vida", telefone: "77776666" },
           ];
+          $scope.operadoras = [
+            { nome: "Oi", codigo: 14, categoria: "Celular" },
+            { nome: "Vivo", codigo: 15, categoria: "Celular" },
+            { nome: "Tim", codigo: 41, categoria: "Celular" },
+            { nome: "GVT", codigo: 25, categoria: "Fixo" },
+            { nome: "Embratel", codigo: 21, categoria: "Fixo" },
+          ];
           $scope.adicionarContato = function (contato) {
-              $scope.contatos.push(angular.copy(contato));
-              delete $scope.contato;
-          }
+            $scope.contatos.push(angular.copy(contato));
+            delete $scope.contato;
+          };
+          $scope.apagarContatos = function (contatos) {
+            $scope.contatos = contatos.filter(function (contato) {
+              if (!contato.selecionado) return contato;
+            });
+          };
+          $scope.isContatoSelecionado = function (contatos) {
+              return contatos.some(function (contato) {
+                  return contato.selecionado;
+              });
+          };
         });
     </script>
   </head>
@@ -37,25 +54,68 @@
    -->
   <body ng-controller="listaTelefonicaController">
     <div class="jumbotron">
-      <h3>{{app}}</h3> <!-- posso usar tbm o ng-bind="app" -->
-      <table class="table table-striped">
+      <h3>{{app}}</h3>
+      <!-- posso usar tbm o ng-bind="app" -->
+      <table ng-show="contatos.length > 0" class="table table-striped">
         <tr>
+          <th></th>
           <th>Nome</th>
           <th>Telefone</th>
+          <th>Operadora</th>
         </tr>
-        <tr ng-repeat="contato in contatos"> <!-- similar ao forIn -->
-          <!--  <td>{{contato.nome}}</td>
-                <td>{{contato.telefone}}</td> -->
-          <td ng-repeat="(key, value) in contato">
+        <tr
+          ng-class="{selecionado: contato.selecionado}"
+          ng-repeat="contato in contatos"
+        >
+          <!-- similar ao forIn -->
+          <td><input type="checkbox" ng-model="contato.selecionado" /></td>
+          <td>{{contato.nome}}</td>
+          <td>{{contato.telefone}}</td>
+          <td>{{contato.operadora.nome}}</td>
+          <!-- <td ng-repeat="(key, value) in contato">
             {{value}}
-          </td>
+          </td> -->
         </tr>
       </table>
-      <hr> 
-      <input class="form-control" type="text" placeholder="Nome" ng-model="contato.nome" />
-      <input class="form-control" type="text" placeholder="Telefone" ng-model="contato.telefone" />
-      <button class="btn btn-primary btn-block" ng-click="adicionarContato(contato)">Adicionar Contato</button>
+      <hr />
+      <form name="contatoForm">
+          <input
+            class="form-control"
+            type="text"
+            placeholder="Nome"
+            ng-model="contato.nome"
+            ng-required="true"
+          />
+          <input
+            class="form-control"
+            type="text"
+            placeholder="Telefone"
+            ng-model="contato.telefone"
+          />
+          <select
+            class="form-control"
+            ng-model="contato.operadora"
+            ng-options="operadora.nome group by operadora.categoria for operadora in operadoras"
+          >
+            <option value="">Selecione uma operadora</option>
+          </select>
+      </form>
+      <button
+        class="btn btn-primary btn-block"
+        ng-click="adicionarContato(contato)"
+        ng-disabled="!contato.nome || !contato.telefone"
+      >
+        Adicionar Contato
+      </button>
+      <button
+        class="btn btn-danger btn-block"
+        ng-click="apagarContatos(contatos)"
+        ng-if="isContatoSelecionado(contatos)"
+      >
+        Deletar Contato
+      </button>
     </div>
+    <div ng-include="'footer.html'"></div>
   </body>
 </html>
 
@@ -63,3 +123,7 @@
 ng-model pega algo da view e define no scope - uso no select, input e textarea -->
 
 <!-- MANTRA: evitar ao máximo LER o scope dentro do controler! ex: adicionar os contatos ali no push passando um obj $scope.name .... -->
+
+<!-- ng-show, ng-hide, ng-if -> para melhor performance usar o if, os outros mesmo não aparecendo dependendo da condição eles seguem existindo  -->
+
+<!-- ng-required = diretiva de validação -->
