@@ -13,18 +13,34 @@
     <link rel="stylesheet" href="lib/bootstrap/bootstrap.css" />
 
     <script src="lib/angular/angular.js"></script>
+    <script src="lib/angular/angular-messages.js"></script>
     <script>
-      angular.module("listaTelefonica", []); //o [] é o conjunto de modules que eu quero importar
+      angular.module("listaTelefonica", ["ngMessages"]); //o [] é o conjunto de modules que eu quero importar
       //abaixo estou criando o meu controller
- 
+
       angular
         .module("listaTelefonica")
         .controller("listaTelefonicaController", function ($scope) {
           $scope.app = "Meus Contatinhos";
           $scope.contatos = [
-            { nome: "Amor", telefone: "55554444", operadora: {nome: "Oi", codigo: 14} },
-            { nome: "Mozão", telefone: "99998888", operadora: {nome: "Vivo", codigo: 15} },
-            { nome: "Amor da minha vida", telefone: "77776666", operadora: {nome: "Tim", codigo: 41} },
+            {
+              nome: "Amor",
+              telefone: "55554444",
+              data: new Date(),
+              operadora: { nome: "Oi", codigo: 14 },
+            },
+            {
+              nome: "Mozão",
+              telefone: "99998888",
+              data: new Date(),
+              operadora: { nome: "Vivo", codigo: 15 },
+            },
+            {
+              nome: "Amor da minha vida",
+              telefone: "77776666",
+              data: new Date(),
+              operadora: { nome: "Tim", codigo: 41 },
+            },
           ];
           $scope.operadoras = [
             { nome: "Oi", codigo: 14, categoria: "Celular" },
@@ -44,9 +60,9 @@
             });
           };
           $scope.isContatoSelecionado = function (contatos) {
-              return contatos.some(function (contato) {
-                  return contato.selecionado;
-              });
+            return contatos.some(function (contato) {
+              return contato.selecionado;
+            });
           };
         });
     </script>
@@ -56,7 +72,12 @@
   <body ng-controller="listaTelefonicaController">
     <div class="jumbotron">
       <h3>{{app}}</h3>
-      <input class="form-control" type="text" ng-model="criterioDeBusca" placeholder="Busque por nome, telefone ou operadora" />
+      <input
+        class="form-control"
+        type="text"
+        ng-model="criterioDeBusca"
+        placeholder="Busque por nome, telefone ou operadora"
+      />
       <!-- posso usar tbm o ng-bind="app" -->
       <table ng-show="contatos.length > 0" class="table table-striped">
         <tr>
@@ -64,16 +85,18 @@
           <th>Nome</th>
           <th>Telefone</th>
           <th>Operadora</th>
+          <th>Data</th>
         </tr>
         <tr
           ng-class="{selecionado: contato.selecionado}"
-          ng-repeat="contato in contatos | filter:criterioDeBusca | orderBy:'nome'" 
+          ng-repeat="contato in contatos | filter:criterioDeBusca | orderBy:'nome'"
         >
           <!-- similar ao forIn -->
           <td><input type="checkbox" ng-model="contato.selecionado" /></td>
           <td>{{contato.nome}}</td>
           <td>{{contato.telefone}}</td>
           <td>{{contato.operadora.nome}}</td>
+          <td>{{contato.data | date:'dd/MM/yyyy - HH:mm'}}</td>
           <!-- <td ng-repeat="(key, value) in contato">
             {{value}}
           </td> -->
@@ -81,44 +104,56 @@
       </table>
       <hr />
       <form name="contatoForm">
-          <input
-            class="form-control"
-            type="text"
-            placeholder="Nome"
-            ng-model="contato.nome"
-            name="nome"
-            ng-required="true"
-            ng-minlength="3"
-          />
-          <input
-            class="form-control"
-            type="text"
-            placeholder="Telefone"
-            ng-model="contato.telefone"
-            name="telefone"
-            ng-required="true"
-            ng-pattern="/^\d{4-5}-\d{4}$/"
-          />
-          <select
-            class="form-control"
-            ng-model="contato.operadora"
-            ng-options="operadora.nome group by operadora.categoria for operadora in operadoras"
-          >
-            <option value="">Selecione uma operadora</option>
-          </select>
+        <input
+          class="form-control"
+          type="text"
+          ng-model="contato.nome"
+          name="nome"
+          placeholder="Nome"
+          ng-required="true"
+          ng-minlength="3"
+        />
+        <input
+          class="form-control"
+          type="text"
+          ng-model="contato.telefone"
+          name="telefone"
+          placeholder="Telefone"
+          ng-required="true"
+          ng-pattern="/^\d{4,5}-\d{4}$/"
+        />
+        <select
+          class="form-control"
+          ng-model="contato.operadora"
+          ng-options="operadora.nome group by operadora.categoria for operadora in operadoras"
+        >
+          <option value="">Selecione uma operadora</option>
+        </select>
       </form>
-      
-      <div class="alert alert-danger" ng-show="contatoForm.nome.$error.required && contatoForm.nome.$dirty">
-        <p>Por favor, preencha o nome!</p>
+
+      <div
+        ng-show="contatoForm.nome.$dirty"
+        ng-messages="contatoForm.nome.$error"
+      >
+        <div ng-message="required" class="alert alert-danger">
+          Por favor, preencha o campo nome!
+        </div>
+        <div ng-message="minlength" class="alert alert-danger">
+          O campo nome deve ter no mínimo 3 caracteres.
+        </div>
       </div>
-      <div class="alert alert-danger" ng-show="contatoForm.nome.$error.minlength">
-        <p>O campo nome deve ter no mínimo 3 caracteres.</p>
+
+      <div
+        ng-show="contatoForm.telefone.$error.required && contatoForm.telefone.$dirty"
+        class="alert alert-danger"
+      >
+        Por favor, preencha o campo telefone!
       </div>
-      <div class="alert alert-danger" ng-show="contatoForm.telefone.$error.required && contatoForm.telefone.$dirty">
-        <p>Por favor, preencha o telefone!</p>
-      </div>
-      <div class="alert alert-danger" ng-show="contatoForm.telefone.$error.pattern ">
-        <p>O campo telefone deve ter o formato 0000-0000.</p>
+      <div
+        ng-show="contatoForm.telefone.$error.pattern"
+        class="alert alert-danger"
+      >
+        O campo telefone deve ter o formato DDDDD-DDDD.
       </div>
       <button
         class="btn btn-primary btn-block"
@@ -155,3 +190,5 @@ ng-model pega algo da view e define no scope - uso no select, input e textarea -
 <!-- filtros: " | uppercase", " | lowercase", " | date:'dd/MM/yyyy HH:mm'" -->
 
 <!-- se eu colocar "oderBy:'-nome'" fica em ordem decrescente -->
+
+<!-- $http -> permite a realizacao de requisições utilizando XMLHttpRequest ou via JSONP -->
