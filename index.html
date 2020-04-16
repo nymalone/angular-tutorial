@@ -20,50 +20,55 @@
 
       angular
         .module("listaTelefonica")
-        .controller("listaTelefonicaController", function ($scope) {
+        .controller("listaTelefonicaController", function ($scope, $http) {
           $scope.app = "Meus Contatinhos";
-          $scope.contatos = [
-            {
-              nome: "Amor",
-              telefone: "55554444",
-              data: new Date(),
-              operadora: { nome: "Oi", codigo: 14 },
-            },
-            {
-              nome: "Mozão",
-              telefone: "99998888",
-              data: new Date(),
-              operadora: { nome: "Vivo", codigo: 15 },
-            },
-            {
-              nome: "Amor da minha vida",
-              telefone: "77776666",
-              data: new Date(),
-              operadora: { nome: "Tim", codigo: 41 },
-            },
-          ];
-          $scope.operadoras = [
-            { nome: "Oi", codigo: 14, categoria: "Celular" },
-            { nome: "Vivo", codigo: 15, categoria: "Celular" },
-            { nome: "Tim", codigo: 41, categoria: "Celular" },
-            { nome: "GVT", codigo: 25, categoria: "Fixo" },
-            { nome: "Embratel", codigo: 21, categoria: "Fixo" },
-          ];
-          $scope.adicionarContato = function (contato) {
-            $scope.contatos.push(angular.copy(contato));
-            delete $scope.contato;
-            $scope.contatoForm.$setPristine();
+          $scope.contatos = [];
+          $scope.operadoras = [];
+
+          var carregarContatos = function () {
+            $http
+              .get("http://localhost:5500/contatos")
+              .then(function (data) {
+                $scope.contatos = response.data;
+              })
+              .error(function (data, status) {
+                $scope.message = "Aconteceu um problema: " + data;
+              });
           };
+
+          var carregarOperadoras = function () {
+            $http
+              .get("http://localhost:5500/operadoras")
+              .then(function (data) {
+                $scope.operadoras = response.data;
+              });
+          };
+
+          $scope.adicionarContato = function (contato) {
+            contato.data = new Date();
+            $http
+              .post("http://localhost:3412/contatos", contato)
+              .then(function (data) {
+                delete $scope.contato;
+                $scope.contatoForm.$setPristine();
+                carregarContatos();
+              });
+          };
+
           $scope.apagarContatos = function (contatos) {
             $scope.contatos = contatos.filter(function (contato) {
               if (!contato.selecionado) return contato;
             });
           };
+
           $scope.isContatoSelecionado = function (contatos) {
             return contatos.some(function (contato) {
               return contato.selecionado;
             });
           };
+
+          carregarContatos();
+          carregarOperadoras();
         });
     </script>
   </head>
